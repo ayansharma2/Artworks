@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component,useEffect} from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet, Text, View } from 'react-native';
 import {StatusBar} from 'react-native';
@@ -9,7 +9,9 @@ import LocalStorage from '../GlobalData/Database';
 
 export default function Home({navigation}){
     const Tab = createBottomTabNavigator();
-    LocalStorage.initDatabase()
+    useEffect(()=>{
+      LocalStorage.initDatabase()
+    },[])
     return(
       <View style={[{height: '100%',}]}>
         <StatusBar barStyle="light-content"

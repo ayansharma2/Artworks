@@ -16,13 +16,15 @@ export default function Details({navigation,route}){
         setWidth(width);
     },(error)=>null)
 
-    if(LocalStorage.artId.includes(art.id)){
-        setFavourite(true)
-    }
+    useEffect(()=>{
+        if(LocalStorage.artId.includes(art.id)){
+            setFavourite(true)
+        }
+    },[])
 
     const insertData= ({art})=>{
         LocalStorage.insertIntoDatabase({art:art})
-        setFavourite(false);
+        setFavourite(true);
     }
 
     return(
@@ -35,7 +37,7 @@ export default function Details({navigation,route}){
                 <TouchableOpacity onPress={()=>{
                     insertData({art:art})
                 }}>
-                <Entypo name="star-outlined" size={24} color="white" />
+                <Entypo name={(isFavourite? "star" : "star-outlined")} size={24} color="white" />
                 </TouchableOpacity>
             </View>
             <Text style={{fontSize:16,marginTop:10,marginHorizontal:10,fontFamily:'Inter-SemiBold',color:'black'}}>{art.title}</Text>

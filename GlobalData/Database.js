@@ -4,29 +4,57 @@ export default class LocalStorage{
     static isDatbaseAccessed = false;
     static artId = []
     static arts = []
-    static db = null
-    static initDatabase(){
+    static db 
+    static async initDatabase () {
         
-        db = SQLite.openDatabase(
+        const db = await SQLite.openDatabase(
             {
-                name:'arts.db'
-            },()=>{console.log("Database Initialised")},
+                name:'db1.db'
+            },()=>{
+                this.db = db
+                this.createTable()
+            },
             (error)=>{console.log(error.message)})
+        
+    }
 
-        db.transaction((tx)=>{
-            tx.executeSql('CREATE TABLE IF NOT EXISTS Arts( id int PRIMARY KEY, artist_display varchar(255), dimensions varchar(255), credit_line varchar(255), PRIMARY KEY(id))')
+    static async createTable(){
+        await this.db.transaction( async(ts)=>{
+            await ts.executeSql('CREATE TABLE IF NOT EXISTS Arts(id int NOT NULL PRIMARY KEY,artist_display varchar NOT NULL,dimensions varchar NOT NULL,credit_line varchar NOT NULL,title varchar NOT NULL,artist_title varchar NOT NULL,image_id varchar NOT NULL);')
+            await ts.executeSql(
+                'SELECT * FROM Arts',
+                [],
+                (tx,results)=>{
+                    var rows = results.rows
+                    this.arts = []
+                    this.artId = []
+                    for (let i = 0; i < rows.length; i++) {
+                        var item = rows.item(i);
+                        this.arts.push(item)
+                        this.artId.add(item.id)
+                    }
+                    console.log(this.artId)
+                }
+            )
         })
         
     }
 
     static async getSavedArtItems(){
-        console.log('GetItemsCalled')
-        this.db.transaction((tx)=>{
+        await this.db.transaction((tx)=>{
             tx.executeSql(
                 'SELECT * FROM Arts',
                 [],
                 (tx,results)=>{
-                    console.log(results)
+                    var rows = results.rows
+                    this.arts = []
+                    this.artId = []
+                    for (let i = 0; i < rows.length; i++) {
+                        var item = rows.item(i);
+                        this.arts.push(item)
+                        this.artId.push(item.id)
+                    }
+                    
                 }
             )
         })
@@ -35,13 +63,16 @@ export default class LocalStorage{
 
 
     static insertIntoDatabase({art}){
-        db.transaction(async (tx)=>{
-            await tx.executeSql(
-                "INSERT INTO Arts VALUES ("+art.id+","+art.artist_display+","+art.dimensions+","+art.credit_line+");"
-            )
-            this.arts.push(art)
-            this.artId.push(art.id)
-        })
+
+        if(this.arts.indexOf(art) === -1){
+            this.db.transaction(async (tx)=>{
+                await tx.executeSql(
+                    "INSERT INTO Arts VALUES ('"+art.id+"','"+art.artist_display +"','"+art.dimensions+"','"+art.credit_line +"','"+art.title +"','"+art.artist_title +"','"+art.image_id +"');"
+                )
+                this.arts.push(art)
+                this.artId.push(art.id)
+            })
+        }
     }
 
 }
