@@ -7,7 +7,7 @@ import Saved from './Fragments/Saved';
 import { Ionicons } from '@expo/vector-icons';
 import LocalStorage from '../GlobalData/Database';
 
-export default function Home({navigation}){
+export default function MainActivity({navigation}){
     const Tab = createBottomTabNavigator();
     useEffect(()=>{
       LocalStorage.initDatabase()
